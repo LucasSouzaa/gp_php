@@ -110,7 +110,7 @@ function retornaEstruturaAleatoria($dicionario, $interacoes = 40){
     //$output .= "[PRE_NIVEL_$profundidade]".QUEBRA_LINHA;
     
     for($i = 0; $i <$interacoes; $i++){
-        $output .= str_repeat(TABULACAO, $profundidade)."[INTERACAO_$i]".QUEBRA_LINHA;
+        $output .= str_repeat(TABULACAO, $profundidade)."//[INTERACAO_$i]".QUEBRA_LINHA;
         $profundidade_nova = $profundidade;
         if($i>0){
             $profundidade_nova = rand(-1,1)+$profundidade;
@@ -135,7 +135,7 @@ function retornaEstruturaAleatoria($dicionario, $interacoes = 40){
     
     if($profundidade >0){
         while($profundidade>0){
-            $output .= str_repeat(TABULACAO, $profundidade)."[INTERACAO_$i]".QUEBRA_LINHA;
+            $output .= str_repeat(TABULACAO, $profundidade)."//[INTERACAO_$i]".QUEBRA_LINHA;
             $i++;
             $profundidade--;
             $output .= str_repeat(TABULACAO, $profundidade)."}".QUEBRA_LINHA ;
@@ -147,4 +147,4 @@ function retornaEstruturaAleatoria($dicionario, $interacoes = 40){
     
 }
 
-file_put_contents("populacao/0.php", retornaEstruturaAleatoria($dicionario)); 
+file_put_contents("populacao/0.php", "<?php".QUEBRA_LINHA. retornaEstruturaAleatoria($dicionario)); 
