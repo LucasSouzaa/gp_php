@@ -1,5 +1,5 @@
 <?php
-define("QUEBRA_LINHA" ,"<br>");
+define("QUEBRA_LINHA" ,"\n");
 define("FIM_LINHA" ,";");
 define("TABULACAO" ,"    ");
 
@@ -11,6 +11,10 @@ $dicionario  = array(
                                     ),
 				array(
                                     "codigo"=>"foreach(VAR as VAR_NIVEL)",
+                                    "funcoes"=>array("break")
+                                    ),
+				array(
+                                    "codigo"=>"while(COND)",
                                     "funcoes"=>array("break")
                                     )
 				),
@@ -99,13 +103,14 @@ for($i = 0; $i <$nIndividuos; $i++){
 
 */
 
-function retornaEstruturaAleatoria($dicionario, $interacoes = 60){
+function retornaEstruturaAleatoria($dicionario, $interacoes = 40){
     $output = "";
     $profundidade = 0;
     
-    $output .= "[PRE_NIVEL_$profundidade]".QUEBRA_LINHA;
+    //$output .= "[PRE_NIVEL_$profundidade]".QUEBRA_LINHA;
     
     for($i = 0; $i <$interacoes; $i++){
+        $output .= str_repeat(TABULACAO, $profundidade)."[INTERACAO_$i]".QUEBRA_LINHA;
         $profundidade_nova = $profundidade;
         if($i>0){
             $profundidade_nova = rand(-1,1)+$profundidade;
@@ -113,7 +118,9 @@ function retornaEstruturaAleatoria($dicionario, $interacoes = 60){
         }
         
         if($profundidade_nova>$profundidade){
-            $output .= "[PRE_INTERACAO_$i]".QUEBRA_LINHA;
+            
+            //$output .= "[PRE_INTERACAO_$i]".QUEBRA_LINHA;
+            $output .= str_repeat(TABULACAO, $profundidade);
             $output .= $dicionario["estruturas"]
                             [rand(0, (count($dicionario["estruturas"])-1))]["codigo"] 
                     ." { //".$profundidade.QUEBRA_LINHA ;
@@ -128,18 +135,16 @@ function retornaEstruturaAleatoria($dicionario, $interacoes = 60){
     
     if($profundidade >0){
         while($profundidade>0){
-           $output .= str_repeat(TABULACAO, $profundidade)."}".QUEBRA_LINHA ;
+            $output .= str_repeat(TABULACAO, $profundidade)."[INTERACAO_$i]".QUEBRA_LINHA;
+            $i++;
             $profundidade--;
-            $output .= "[POS_NIVEL_$profundidade]".QUEBRA_LINHA;
+            $output .= str_repeat(TABULACAO, $profundidade)."}".QUEBRA_LINHA ;
+            //$output .= "[POS_NIVEL_$profundidade]".QUEBRA_LINHA;
         }
     }
-    $output .= "[POS_NIVEL_$profundidade]".QUEBRA_LINHA;
     
     return $output;
     
 }
 
-echo retornaEstruturaAleatoria($dicionario);
-
-
-echo "</code></pre>";
+file_put_contents("populacao/0.php", retornaEstruturaAleatoria($dicionario)); 
