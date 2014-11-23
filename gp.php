@@ -2,7 +2,7 @@
 define("QUEBRA_LINHA" ,"\n");
 define("FIM_LINHA" ,";");
 define("TABULACAO" ,"    ");
-define("INTERACOES" ,40);
+define("INTERACOES" ,200);
 
 $dicionario  = array(
 		"estruturas"=>array(
@@ -46,7 +46,9 @@ $dicionario  = array(
 				"&",
 				"^",
 				"|",
-                                "."
+//                                "~",
+                                "<<",
+                                ">>"
 				),
                 "operadores_atribuicao"=>array(
 				"=",
@@ -71,6 +73,7 @@ for($i = 0; $i <$nIndividuos; $i++){
 */
 
 function retornaEstruturaAleatoria($dicionario){
+    echo "iniciou a estrutura <br>";
     $output = "";
     $profundidade = 0;
     
@@ -109,11 +112,13 @@ function retornaEstruturaAleatoria($dicionario){
             //$output .= "[POS_NIVEL_$profundidade]".QUEBRA_LINHA;
         }
     }
-    
+    echo "finalizou a estrutura<br>";
     return $output;
 }
 
 function substituiInteracoesAleatorias($dicionario, $input){
+    echo "iniciou as interacoes<br>";
+    
     $variaveis = array();
     $output = $input;
     for($i = 0; $i < INTERACOES; $i++){
@@ -124,17 +129,49 @@ function substituiInteracoesAleatorias($dicionario, $input){
         // 0 - variavel nova, 1 - variavel antiga, (2 - variavel de contexto)
         $i_var = rand(0,1);
         if($i_var===1 && count($variaveis)>0){
-            $out_interacao .= '$'.$variaveis[rand(0, (count($variaveis)-1) )]
+            $out_interacao .= $variaveis[rand(0, (count($variaveis)-1) )]
                     .' '.$dicionario["operadores_atribuicao"]
                             [rand(0, (count($dicionario["operadores_atribuicao"])-1))].' ';
         }else{
-            $variaveis[] = "VAR_$i";
+            $variaveis[] = '$VAR_'.$i;
             $out_interacao .= '$VAR_'.$i.' = ';
         }
         
         
+        // ATRIBUICAO DAS VARIAVEIS
+        /* 
+         * 0 - variavel aleatoria direta
+         * 1 - duas ou mais variaveis
+         * 2 - funcoes
+         * 3 - valores randomicos
+         */
+        $a_var = rand(0,3);
+        switch ($a_var){
+            case(0):
+                $out_interacao .= $variaveis[rand(0, (count($variaveis)-1) )];
+                break;
+            case(1):
+                $qtd_vars = rand(1,10);
+                while($qtd_vars-->0){
+                    $out_interacao .= $variaveis[rand(0, (count($variaveis)-1) )].' '.
+                        $dicionario["operadores_matematicos"]
+                            [rand(0, (count($dicionario["operadores_matematicos"])-1))];
+                }
+                $out_interacao .= $variaveis[rand(0, (count($variaveis)-1) )];
+                break;
+            case(2):
+                $out_interacao .= str_replace('VAR', $variaveis[rand(0, (count($variaveis)-1) )], $dicionario["funcoes"]
+                                            [rand(0, (count($dicionario["funcoes"])-1))]);
+                break;
+            case(3):
+                $out_interacao .= rand();
+        }
+        
+        $out_interacao .= ';';
+        
         $output = str_replace("//[INTERACAO_$i]", $out_interacao, $output);
     }
+    echo "finalizou as interacoes<br>";
     return $output;
 }
 
