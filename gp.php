@@ -63,7 +63,6 @@ $pos_estruturas = 0;
 
 
 $nIndividuos = 2;
-$interacoes = 10;
 
 
 /*
@@ -78,6 +77,7 @@ function retornaEstruturaAleatoria($dicionario){
     $output = "";
     $profundidade = 0;
     $variaveis = array();
+    $arrays = array();
     
     
     
@@ -95,9 +95,16 @@ function retornaEstruturaAleatoria($dicionario){
         if($profundidade_nova>$profundidade){
             
             $output .= str_repeat(TABULACAO, $profundidade);
-            $output .= $dicionario["estruturas"]
-                            [rand(0, (count($dicionario["estruturas"])-1))]["codigo"] 
-                    ." { //".$profundidade.QUEBRA_LINHA ;
+            $estrutura_aux = $dicionario["estruturas"]
+                            [rand(0, (count($dicionario["estruturas"])-1))]["codigo"];
+            $output .= str_replace('COND', 
+                        $variaveis[rand(0, (count($variaveis)-1) )] . ' ' .
+                        $dicionario["operadores_comparacao"]
+                            [rand(0, (count($dicionario["operadores_comparacao"])-1))] . ' ' .
+                        $variaveis[rand(0, (count($variaveis)-1) )]
+                                    , $estrutura_aux);
+                    
+            $output .=" { //".$profundidade.QUEBRA_LINHA ;
             
             
         }else if($profundidade_nova<$profundidade){
@@ -148,22 +155,27 @@ function retornaInteracaoAleatoria($dicionario, &$variaveis, $interacao){
      * 2 - funcoes
      * 3 - valores randomicos
      */
-    $a_var = rand(0,3);
+    $pos_variaveis = ($i_var===0)?count($variaveis)-2:count($variaveis)-1;
+    if($pos_variaveis>=0){
+        $a_var = rand(0,3);
+    }else{
+        $a_var = rand(2,3);
+    }
     switch ($a_var){
         case(0):
-            $out_interacao .= $variaveis[rand(0, (count($variaveis)-1) )];
+            $out_interacao .= $variaveis[rand(0, $pos_variaveis )];
             break;
         case(1):
             $qtd_vars = rand(1,10);
             while($qtd_vars-->0){
-                $out_interacao .= $variaveis[rand(0, (count($variaveis)-1) )].' '.
+                $out_interacao .= $variaveis[rand(0, $pos_variaveis )].' '.
                     $dicionario["operadores_matematicos"]
                         [rand(0, (count($dicionario["operadores_matematicos"])-1))];
             }
-            $out_interacao .= $variaveis[rand(0, (count($variaveis)-1) )];
+            $out_interacao .= $variaveis[rand(0, $pos_variaveis )];
             break;
         case(2):
-            $out_interacao .= str_replace('VAR', $variaveis[rand(0, (count($variaveis)-1) )], $dicionario["funcoes"]
+            $out_interacao .= str_replace('VAR', $variaveis[rand(0, $pos_variaveis )], $dicionario["funcoes"]
                                         [rand(0, (count($dicionario["funcoes"])-1))]);
             break;
         case(3):
