@@ -21,6 +21,7 @@ $dicionario  = array(
 				),
 		"funcoes"=>array(
 				"rand()",
+                                "array(0,0,0,0,0,0,0,0)",
 				"md5(VAR)"
 				),
 		"operadores_comparacao"=>array(
@@ -76,11 +77,15 @@ function retornaEstruturaAleatoria($dicionario){
     echo "iniciou a estrutura <br>";
     $output = "";
     $profundidade = 0;
+    $variaveis = array();
     
-    //$output .= "[PRE_NIVEL_$profundidade]".QUEBRA_LINHA;
+    
     
     for($i = 0; $i < INTERACOES; $i++){
         $output .= str_repeat(TABULACAO, $profundidade)."//[INTERACAO_$i]".QUEBRA_LINHA;
+        $output .= str_repeat(TABULACAO, $profundidade)
+                    .   retornaInteracaoAleatoria($dicionario, $variaveis, $i)
+                    .   QUEBRA_LINHA;
         $profundidade_nova = $profundidade;
         if($i>0){
             $profundidade_nova = rand(-1,1)+$profundidade;
@@ -89,7 +94,6 @@ function retornaEstruturaAleatoria($dicionario){
         
         if($profundidade_nova>$profundidade){
             
-            //$output .= "[PRE_INTERACAO_$i]".QUEBRA_LINHA;
             $output .= str_repeat(TABULACAO, $profundidade);
             $output .= $dicionario["estruturas"]
                             [rand(0, (count($dicionario["estruturas"])-1))]["codigo"] 
@@ -100,84 +104,80 @@ function retornaEstruturaAleatoria($dicionario){
             $output .= str_repeat(TABULACAO, $profundidade_nova)."}".QUEBRA_LINHA ;    
         }
         $profundidade = $profundidade_nova;
-       //$output .= "/*POS_INTERACAO_$i*/".QUEBRA_LINHA;
     }
     
     if($profundidade >0){
         while($profundidade>0){
             $output .= str_repeat(TABULACAO, $profundidade)."//[INTERACAO_$i]".QUEBRA_LINHA;
+            $output .= str_repeat(TABULACAO, $profundidade)
+                    .   retornaInteracaoAleatoria($dicionario, $variaveis, $i)
+                    .   QUEBRA_LINHA;
             $i++;
             $profundidade--;
             $output .= str_repeat(TABULACAO, $profundidade)."}".QUEBRA_LINHA ;
-            //$output .= "[POS_NIVEL_$profundidade]".QUEBRA_LINHA;
         }
     }
     echo "finalizou a estrutura<br>";
     return $output;
 }
 
-function substituiInteracoesAleatorias($dicionario, $input){
-    echo "iniciou as interacoes<br>";
-    
-    $variaveis = array();
-    $output = $input;
-    for($i = 0; $i < INTERACOES; $i++){
-        $out_interacao = "";
+
+
+function retornaInteracaoAleatoria($dicionario, &$variaveis, $interacao){
+    $out_interacao = "";
         
 
-        // INTERACAO COM VARIAVEIS
-        // 0 - variavel nova, 1 - variavel antiga, (2 - variavel de contexto)
-        $i_var = rand(0,1);
-        if($i_var===1 && count($variaveis)>0){
-            $out_interacao .= $variaveis[rand(0, (count($variaveis)-1) )]
-                    .' '.$dicionario["operadores_atribuicao"]
-                            [rand(0, (count($dicionario["operadores_atribuicao"])-1))].' ';
-        }else{
-            $variaveis[] = '$VAR_'.$i;
-            $out_interacao .= '$VAR_'.$i.' = ';
-        }
-        
-        
-        // ATRIBUICAO DAS VARIAVEIS
-        /* 
-         * 0 - variavel aleatoria direta
-         * 1 - duas ou mais variaveis
-         * 2 - funcoes
-         * 3 - valores randomicos
-         */
-        $a_var = rand(0,3);
-        switch ($a_var){
-            case(0):
-                $out_interacao .= $variaveis[rand(0, (count($variaveis)-1) )];
-                break;
-            case(1):
-                $qtd_vars = rand(1,10);
-                while($qtd_vars-->0){
-                    $out_interacao .= $variaveis[rand(0, (count($variaveis)-1) )].' '.
-                        $dicionario["operadores_matematicos"]
-                            [rand(0, (count($dicionario["operadores_matematicos"])-1))];
-                }
-                $out_interacao .= $variaveis[rand(0, (count($variaveis)-1) )];
-                break;
-            case(2):
-                $out_interacao .= str_replace('VAR', $variaveis[rand(0, (count($variaveis)-1) )], $dicionario["funcoes"]
-                                            [rand(0, (count($dicionario["funcoes"])-1))]);
-                break;
-            case(3):
-                $out_interacao .= rand();
-        }
-        
-        $out_interacao .= ';';
-        
-        $output = str_replace("//[INTERACAO_$i]", $out_interacao, $output);
+    // INTERACAO COM VARIAVEIS
+    // 0 - variavel nova, 1 - variavel antiga, (2 - variavel de contexto)
+    $i_var = rand(0,1);
+    if($i_var===1 && count($variaveis)>0){
+        $out_interacao .= $variaveis[rand(0, (count($variaveis)-1) )]
+                .' '.$dicionario["operadores_atribuicao"]
+                        [rand(0, (count($dicionario["operadores_atribuicao"])-1))].' ';
+    }else{
+        $i_var = 0;
+        $variaveis[] = '$VAR_'.$interacao;
+        $out_interacao .= '$VAR_'.$interacao.' = ';
     }
-    echo "finalizou as interacoes<br>";
-    return $output;
+
+
+    // ATRIBUICAO DAS VARIAVEIS
+    /* 
+     * 0 - variavel aleatoria direta
+     * 1 - duas ou mais variaveis
+     * 2 - funcoes
+     * 3 - valores randomicos
+     */
+    $a_var = rand(0,3);
+    switch ($a_var){
+        case(0):
+            $out_interacao .= $variaveis[rand(0, (count($variaveis)-1) )];
+            break;
+        case(1):
+            $qtd_vars = rand(1,10);
+            while($qtd_vars-->0){
+                $out_interacao .= $variaveis[rand(0, (count($variaveis)-1) )].' '.
+                    $dicionario["operadores_matematicos"]
+                        [rand(0, (count($dicionario["operadores_matematicos"])-1))];
+            }
+            $out_interacao .= $variaveis[rand(0, (count($variaveis)-1) )];
+            break;
+        case(2):
+            $out_interacao .= str_replace('VAR', $variaveis[rand(0, (count($variaveis)-1) )], $dicionario["funcoes"]
+                                        [rand(0, (count($dicionario["funcoes"])-1))]);
+            break;
+        case(3):
+            $out_interacao .= rand();
+    }
+
+    $out_interacao .= ';';
+    
+    return $out_interacao;
 }
 
 
 $teste = retornaEstruturaAleatoria($dicionario);
 
 
-
-file_put_contents("populacao/0.php", "<?php".QUEBRA_LINHA. substituiInteracoesAleatorias($dicionario, $teste)); 
+    
+file_put_contents("populacao/0.php", "<?php".QUEBRA_LINHA. $teste); 
